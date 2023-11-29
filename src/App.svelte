@@ -20,6 +20,16 @@
         $words = text.trim().split(/\s+/g);
       }}>Submit</button
     >
+
+    <div class="actions">
+      <button
+        disabled={!text}
+        on:click={() => {
+          if (!text) return;
+          text = text.replace(/^\n*\d+:\d+\n/g, "").replace(/\n\d+:\d+\n/g, "\n");
+        }}>Remove timestamps</button
+      >
+    </div>
   </main>
 {/if}
 
@@ -47,6 +57,18 @@
       width: fit-content;
       padding: 0.5rem 1rem;
       margin-top: 1rem;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      width: fit-content;
+      gap: 2rem;
+
+      button {
+        background-color: rgb(61, 85, 47);
+      }
     }
   }
 </style>
