@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { settingGhostWords } from "../stores/settings.store";
   import { index, words, wpm } from "../stores/time.store";
   import { cx } from "../utils/class.util";
-  import { wpmToTimeString, wpmToTimestamp } from "../utils/time.util";
+  import { wpmToTimeString } from "../utils/time.util";
   import IconButton from "./buttons/IconButton.svelte";
   import EyeClosedIcon from "./icons/EyeClosedIcon.svelte";
   import EyeIcon from "./icons/EyeIcon.svelte";
@@ -22,7 +23,7 @@
     </IconButton>
 
     {#if open}
-      <h3 class="font-medium text-lg">Stats</h3>
+      <h3 class="font-medium text-lg">Settings</h3>
     {/if}
   </div>
 
@@ -32,6 +33,22 @@
       <div><span class="font-medium">Word Count:</span> {wordCount}</div>
       <div><span class="font-medium">Progress:</span> {progress}%</div>
       <div><span class="font-medium">WPM:</span> {$wpm}</div>
+      <div>
+        <span class="font-medium">Ghost Words:</span>
+        <input data-ignore-key-event type="number" bind:value={$settingGhostWords} min={0} />
+      </div>
     </div>
   {/if}
 </div>
+
+<style lang="scss">
+  input {
+    background-color: theme("colors.background");
+    outline: none !important;
+    width: 48px;
+
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+</style>

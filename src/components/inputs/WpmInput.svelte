@@ -5,7 +5,7 @@
 </script>
 
 <div class="wpm-input">
-  <input type="number" id="wpm-input" bind:value data-ignore-key-event max={MAX_WPM} step="1" />
+  <input data-ignore-key-event type="number" id="wpm-input" bind:value max={MAX_WPM} step="1" />
   <label for="wpm-input" class="font-medium">WPM</label>
 </div>
 

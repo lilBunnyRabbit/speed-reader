@@ -1,19 +1,22 @@
 <script lang="ts">
+  import { settingGhostWords } from "../stores/settings.store";
   import { index, words } from "../stores/time.store";
 
-  const n = 3;
+  $: lastN = $settingGhostWords
+    ? Array($settingGhostWords)
+        .fill(0)
+        .map((_, i) => $words[$index - ($settingGhostWords - i)])
+        .filter(Boolean)
+        .join(" ")
+    : "";
 
-  $: lastN = Array(n)
-    .fill(0)
-    .map((_, i) => $words[$index - (n - i)])
-    .filter(Boolean)
-    .join(" ");
-
-  $: nextN = Array(n)
-    .fill(0)
-    .map((_, i) => $words[$index + i + 1])
-    .filter(Boolean)
-    .join(" ");
+  $: nextN = $settingGhostWords
+    ? Array($settingGhostWords)
+        .fill(0)
+        .map((_, i) => $words[$index + i + 1])
+        .filter(Boolean)
+        .join(" ")
+    : "";
 </script>
 
 <div class="words-display">
