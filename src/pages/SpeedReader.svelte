@@ -2,10 +2,11 @@
   import { onMount } from "svelte";
   import { keyEvents } from "../actions/keyEvents.action";
   import ProgressTrack from "../components/ProgressTrack.svelte";
+  import StatsDisplay from "../components/StatsDisplay.svelte";
   import WordsDisplay from "../components/WordsDisplay.svelte";
+  import Button from "../components/buttons/Button.svelte";
   import { index, interval, words, wpm } from "../stores/time.store";
   import { isUndefined } from "../utils";
-  import Button from "../components/buttons/Button.svelte";
 
   onMount(() => {
     return () => {
@@ -19,19 +20,7 @@
 
   <ProgressTrack />
 
-  <div style:display="flex" style:gap="1rem" style:align-items="center">
-    <Button
-      disabled={$index >= $words.length - 1}
-      data-ignore-key-event
-      on:click={() => {
-        isUndefined($interval) ? interval.start() : interval.stop();
-      }}
-    >
-      {isUndefined($interval) ? "Start" : "Stop"}
-    </Button>
-
-    <input type="number" bind:value={$wpm} data-ignore-key-event /> WPM
-  </div>
+  <StatsDisplay class="absolute top-0 left-0" />
 </main>
 
 <style lang="scss">

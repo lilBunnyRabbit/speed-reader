@@ -28,7 +28,7 @@
   .words-display {
     display: grid;
     grid-template-columns: 1fr fit-content(100%) 1fr;
-    column-gap: 0.5rem;
+    column-gap: 1rem;
     align-items: baseline;
     align-content: center;
     flex: 1 1 0%;

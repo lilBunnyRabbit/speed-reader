@@ -4,9 +4,9 @@
   import SunIcon from "../icons/SunIcon.svelte";
   import IconButton from "./IconButton.svelte";
 
-  $: selected = $theme === "dark" ? MoonIcon : SunIcon;
+  $: icon = $theme === "dark" ? MoonIcon : SunIcon;
 </script>
 
-<IconButton on:click={() => theme.toggle()} class={$$props.class} variant="transparent">
-  <svelte:component this={selected} />
+<IconButton on:click={() => theme.toggle()} class={$$props.class} variant="ghost">
+  <svelte:component this={icon} />
 </IconButton>

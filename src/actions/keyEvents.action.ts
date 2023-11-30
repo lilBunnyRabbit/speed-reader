@@ -30,6 +30,7 @@ export function keyEvents(_: Node) {
         break;
 
       case "Backspace":
+        interval.stop();
         index.reset();
         break;
 

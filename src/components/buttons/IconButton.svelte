@@ -4,7 +4,7 @@
 
   interface $$Props extends HTMLButtonAttributes {
     colorScheme?: Colors;
-    variant?: "normal" | "transparent";
+    variant?: "normal" | "ghost" | "transparent";
   }
 
   export let colorScheme: $$Props["colorScheme"] = undefined;
@@ -64,7 +64,7 @@
       }
     }
 
-    &[data-variant="transparent"] {
+    &[data-variant="ghost"] {
       color: theme("colors.foreground");
 
       &:hover {
@@ -88,7 +88,28 @@
 
           &:focus-visible {
             outline-color: $color !important;
-          }         
+          }
+        }
+      }
+    }
+
+    &[data-variant="transparent"] {
+      color: theme("colors.foreground");
+
+      padding: 0px;
+
+      &:focus-visible {
+        outline: 2px solid theme("colors.foreground");
+        outline-offset: 2px;
+      }
+
+      @each $colorScheme, $color in $colors {
+        &[data-color-scheme="#{$colorScheme}"] {
+          color: $color;
+
+          &:focus-visible {
+            outline-color: $color !important;
+          }
         }
       }
     }
