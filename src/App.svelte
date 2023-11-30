@@ -26,6 +26,8 @@
     align-items: center;
     gap: 1rem;
     justify-content: center;
+    max-width: 1280px;
+    margin: 0px auto;
 
     h1 {
       font-size: 48px;
