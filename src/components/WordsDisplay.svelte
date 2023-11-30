@@ -17,53 +17,23 @@
 </script>
 
 <div class="words-display">
-  <div class="words-list">
-    <h2>{lastN}</h2>
-    <h1>
-      {$words[$index]}
-    </h1>
-    <h2>{nextN}</h2>
-  </div>
+  <h2 class="truncate justify-self-end text-lg opacity-40">{lastN}</h2>
+
+  <h1 class="break-all text-center text-5xl">{$words[$index]}</h1>
+
+  <h2 class="truncate justify-self-start text-lg opacity-40">{nextN}</h2>
 </div>
 
 <style lang="scss">
   .words-display {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-
-    // border: 1px solid red;
-  }
-
-  .words-list {
     display: grid;
-    grid-template-columns: 1fr min-content 1fr;
+    grid-template-columns: 1fr fit-content(100%) 1fr;
+    column-gap: 0.5rem;
     align-items: baseline;
-    justify-content: center;
-    gap: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
+    align-content: center;
+    flex: 1 1 0%;
     position: relative;
-  }
-
-  h1 {
-    font-size: 48px;
-  }
-
-  h2 {
-    opacity: 0.3;
-
-    &:first-child {
-      justify-self: flex-end;
-    }
-    &:last-child {
-      justify-self: flex-start;
-    }
-
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 </style>

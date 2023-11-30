@@ -1,5 +1,7 @@
-import "./app.css";
+import "./app.scss";
 import App from "./App.svelte";
+
+// document.documentElement.classList.add("dark");
 
 const app = new App({
   target: document.getElementById("app")!,

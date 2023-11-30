@@ -1,0 +1,9 @@
+@use "sass:map";
+
+$colors: (
+  "primary": theme("colors.primary"),
+  "info": theme("colors.info"),
+  "success": theme("colors.success"),
+  "warn": theme("colors.warn"),
+  "error": theme("colors.error"),
+);

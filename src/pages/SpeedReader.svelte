@@ -1,9 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { keyEvents } from "../actions/keyEvents.action";
+  import ProgressTrack from "../components/ProgressTrack.svelte";
+  import WordsDisplay from "../components/WordsDisplay.svelte";
   import { index, interval, words, wpm } from "../stores/time.store";
   import { isUndefined } from "../utils";
-  import Track from "./Track.svelte";
-  import WordsDisplay from "./WordsDisplay.svelte";
+  import Button from "../components/buttons/Button.svelte";
 
   onMount(() => {
     return () => {
@@ -12,26 +14,23 @@
   });
 </script>
 
-<main id="speed-reader">
+<main id="speed-reader" use:keyEvents>
   <WordsDisplay />
 
-  <Track />
+  <ProgressTrack />
 
   <div style:display="flex" style:gap="1rem" style:align-items="center">
-    <button
-      style:cursor="pointer"
+    <Button
       disabled={$index >= $words.length - 1}
-      on:click={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
+      data-ignore-key-event
+      on:click={() => {
         isUndefined($interval) ? interval.start() : interval.stop();
       }}
     >
       {isUndefined($interval) ? "Start" : "Stop"}
-    </button>
+    </Button>
 
-    <input type="number" bind:value={$wpm} /> WPM
+    <input type="number" bind:value={$wpm} data-ignore-key-event /> WPM
   </div>
 </main>
 
@@ -41,14 +40,9 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
-    // border: 1px solid gray;
     gap: 1rem;
     align-items: center;
-  }
-
-  button {
-    width: fit-content;
-    padding: 0.5rem 1rem;
+    overflow: hidden;
   }
 
   input {

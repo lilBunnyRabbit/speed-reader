@@ -1,8 +1,8 @@
 <script lang="ts">
-  import SpeedReader from "./components/SpeedReader.svelte";
+  import ReaderInput from "./components/ReaderInput.svelte";
+  import ThemeToggle from "./components/buttons/ThemeToggle.svelte";
+  import SpeedReader from "./pages/SpeedReader.svelte";
   import { words } from "./stores/time.store";
-
-  let text: string | undefined;
 </script>
 
 {#if $words.length > 0}
@@ -10,33 +10,16 @@
 {:else}
   <main id="landing-page">
     <h1>Speed Reader</h1>
-    <textarea bind:value={text} rows="10" />
-    <button
-      type="submit"
-      disabled={!text}
-      on:click={() => {
-        if (!text) return;
-
-        $words = text.trim().split(/\s+/g);
-      }}>Submit</button
-    >
-
-    <div class="actions">
-      <button
-        disabled={!text}
-        on:click={() => {
-          if (!text) return;
-          text = text.replace(/^\n*\d+:\d+\n/g, "").replace(/\n\d+:\d+\n/g, "\n");
-        }}>Remove timestamps</button
-      >
-    </div>
+    <ReaderInput />
   </main>
 {/if}
 
+<ThemeToggle class="absolute top-2 right-2" />
+
 <style lang="scss">
   main#landing-page {
+    position: relative;
     flex: 1;
-    // border: 1px solid white;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -47,28 +30,6 @@
     h1 {
       font-size: 48px;
       text-align: center;
-    }
-
-    textarea {
-      width: 100%;
-    }
-
-    button {
-      width: fit-content;
-      padding: 0.5rem 1rem;
-      margin-top: 1rem;
-      cursor: pointer;
-    }
-
-    .actions {
-      display: flex;
-      flex-direction: column;
-      width: fit-content;
-      gap: 2rem;
-
-      button {
-        background-color: rgb(61, 85, 47);
-      }
     }
   }
 </style>
