@@ -17,7 +17,7 @@
 
 <div class={cx("p-2 whitespace-nowrap", open && "border-r border-b", $$props.class)}>
   <div class={cx(open && "flex items-center border-b gap-2 pb-1 mb-1")}>
-    <IconButton on:click={() => (open = !open)} variant="transparent">
+    <IconButton on:click={() => (open = !open)} variant="ghost">
       <svelte:component this={icon} />
     </IconButton>
 

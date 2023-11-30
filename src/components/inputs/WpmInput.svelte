@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { MAX_WPM } from "../../stores/time.store";
+
   export let value: number;
 </script>
 
 <div class="wpm-input">
-  <input type="number" id="wpm-input" bind:value data-ignore-key-event />
+  <input type="number" id="wpm-input" bind:value data-ignore-key-event max={MAX_WPM} step="1" />
   <label for="wpm-input" class="font-medium">WPM</label>
 </div>
 

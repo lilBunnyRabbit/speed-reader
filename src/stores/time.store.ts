@@ -1,6 +1,8 @@
 import { derived, get, writable, type Updater } from "svelte/store";
 import { debugLog, isUndefined } from "../utils";
 
+export const MAX_WPM = 1200;
+
 function createWpmStore(initial: number) {
   const wpm = writable(initial);
 
@@ -9,15 +11,11 @@ function createWpmStore(initial: number) {
     update: (updater: Updater<number>) => {
       wpm.update((index) => {
         const value = updater(index);
-        console.log("wpm:update", value);
-
-        return value < 0 ? 0 : value;
+        return value < 0 ? 0 : value > MAX_WPM ? MAX_WPM : value;
       });
     },
     set: (value: number) => {
-      console.log("wpm:set", value);
-
-      wpm.set(value < 0 ? 0 : value);
+      wpm.set(value < 0 ? 0 : value > MAX_WPM ? MAX_WPM : value);
     },
   };
 }
