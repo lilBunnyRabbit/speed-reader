@@ -3,10 +3,7 @@
   import { removeTimestamps } from "../utils/text.util";
   import Button from "./buttons/Button.svelte";
 
-  let text: string = Array(20)
-    .fill(0)
-    .map((_, i) => `"${String(i).repeat(5)}"`)
-    .join(" ");
+  let text: string;
 
   const handleSubmit = () => {
     if (!text) return;
