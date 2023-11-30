@@ -26,8 +26,14 @@
     text-align: right;
     width: 48px;
 
-    &::-webkit-inner-spin-button {
+    &[type="number"]::-webkit-outer-spin-button,
+    &[type="number"]::-webkit-inner-spin-button {
       -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &[type="number"] {
+      -moz-appearance: textfield;
     }
   }
 </style>
