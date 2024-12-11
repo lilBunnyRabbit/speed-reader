@@ -1,7 +1,10 @@
 <script lang="ts">
   import ReaderInput from "./components/ReaderInput.svelte";
+  import IconButton from "./components/buttons/IconButton.svelte";
   import ThemeToggle from "./components/buttons/ThemeToggle.svelte";
+  import HomeIcon from "./components/icons/HomeIcon.svelte";
   import SpeedReader from "./pages/SpeedReader.svelte";
+  import { text } from "./stores/text.store";
   import { words } from "./stores/time.store";
 </script>
 
@@ -14,7 +17,15 @@
   </main>
 {/if}
 
-<ThemeToggle class="absolute top-2 right-2" />
+<div class="absolute top-2 right-2">
+  {#if $words.length > 0}
+    <IconButton on:click={() => ($words = [])} variant="ghost">
+      <HomeIcon />
+    </IconButton>
+  {/if}
+
+  <ThemeToggle />
+</div>
 
 <style lang="scss">
   main#landing-page {

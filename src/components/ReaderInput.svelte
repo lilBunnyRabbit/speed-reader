@@ -1,19 +1,18 @@
 <script lang="ts">
+  import { text } from "../stores/text.store";
   import { words } from "../stores/time.store";
   import { removeTimestamps } from "../utils/text.util";
   import Button from "./buttons/Button.svelte";
 
-  let text: string;
-
   const handleSubmit = () => {
-    if (!text) return;
+    if (!$text) return;
 
-    $words = text.trim().split(/\s+/g);
+    $words = $text.trim().split(/\s+/g);
   };
 </script>
 
 <div class="grid grid-cols-[1fr,min-content] w-full h-full gap-x-8">
-  <textarea class="resize-none" bind:value={text} />
+  <textarea class="resize-none" bind:value={$text} />
 
   <div class="flex flex-col justify-between w-full">
     <div class="flex flex-col gap-y-2">
@@ -22,13 +21,23 @@
       <Button
         class="!w-full whitespace-nowrap"
         colorScheme="primary"
-        disabled={!text}
+        disabled={!$text}
         on:click={() => {
-          if (!text) return;
-          text = removeTimestamps(text);
+          if (!$text) return;
+          $text = removeTimestamps($text);
         }}
       >
         Remove timestamps
+      </Button>
+      <Button
+        class="!w-full whitespace-nowrap"
+        colorScheme="error"
+        disabled={!$text}
+        on:click={() => {
+          $text = "";
+        }}
+      >
+        Clear
       </Button>
     </div>
 

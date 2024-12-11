@@ -4,9 +4,7 @@
   import ProgressTrack from "../components/ProgressTrack.svelte";
   import StatsDisplay from "../components/StatsDisplay.svelte";
   import WordsDisplay from "../components/WordsDisplay.svelte";
-  import Button from "../components/buttons/Button.svelte";
-  import { index, interval, words, wpm } from "../stores/time.store";
-  import { isUndefined } from "../utils";
+  import { interval } from "../stores/time.store";
 
   onMount(() => {
     return () => {
@@ -32,9 +30,5 @@
     gap: 1rem;
     align-items: center;
     overflow: hidden;
-  }
-
-  input {
-    width: 100%;
   }
 </style>
