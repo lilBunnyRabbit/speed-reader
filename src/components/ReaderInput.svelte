@@ -42,8 +42,8 @@
     border-radius: 0.25rem;
 
     border: 1px solid theme("colors.foreground");
-    background-color: theme("colors.background");
-    color: theme("colors.foreground");
+    background-color: theme("colors.foreground");
+    color: theme("colors.background");
 
     &:focus {
       outline: none !important;
