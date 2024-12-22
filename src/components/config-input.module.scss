@@ -1,0 +1,9 @@
+input[type="number"].config-input {
+  @apply font-mono w-14 outline-none bg-transparent text-center text-sm border-x truncate px-1 selection:bg-primary;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
