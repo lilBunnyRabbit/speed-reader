@@ -47,6 +47,7 @@ When having design/architecture discussions:
 - `2026-02-14_emotion-system.md` - 2D Circumplex emotion grid, delivery modifiers, combinations, picker UI
 - `2026-02-14_reader-engine.md` - Word display, animation tech, timing, pre-computation, high WPM scaling
 - `2026-02-14_editor-ux.md` - Editor interaction patterns, paint/brush mode, properties panel, timeline, phasing
+- `2026-02-15_tech-stack-hosting.md` - Full tech stack decisions, hosting, database, monetization model
 
 ## Architecture Decision Records (ADR)
 
