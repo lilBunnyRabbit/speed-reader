@@ -51,6 +51,9 @@ export const EditorToolbar: React.FC = () => {
             <DropdownMenuItem onClick={() => actions.removeTimestamps()}>
               <TimerOffIcon /> Timestamps
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => actions.removeAdvancedTimestamps()}>
+              <TimerOffIcon /> Advanced Timestamps
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => actions.removeNewLines()}>
               <WrapTextIcon /> Newlines
             </DropdownMenuItem>
