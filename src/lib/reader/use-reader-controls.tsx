@@ -1,77 +1,153 @@
+import {
+  buildTimeline,
+  DEFAULT_PAUSE_SETTINGS,
+  elapsedForIndex,
+  indexForElapsed,
+  PauseSettings,
+  Timeline,
+} from "@/core/timeline";
 import { useBindState } from "@/hooks/use-bind-state";
 import { SpeedDocument } from "@/models/speed-document";
-import { isNull, isUndefined } from "@lilbunnyrabbit/utils";
 import React from "react";
-
-const hasInterval = (value: NodeJS.Timeout | null): value is NodeJS.Timeout => {
-  return !isUndefined(value) && !isNull(value);
-};
-
-const clearIntervalRef = (ref: React.MutableRefObject<NodeJS.Timeout | null>) => {
-  if (hasInterval(ref.current)) {
-    clearInterval(ref.current);
-    ref.current = null;
-  }
-};
 
 export function useReaderSettings() {
   const wpm = useBindState<number>(300);
   const ghostWords = useBindState<number>(3);
+  const stopMs = useBindState<number>(DEFAULT_PAUSE_SETTINGS.stopMs);
+  const endHoldMs = useBindState<number>(DEFAULT_PAUSE_SETTINGS.endHoldMs);
 
-  return { wpm, ghostWords };
+  return { wpm, ghostWords, stopMs, endHoldMs };
 }
 
-export function useReaderControls(document: SpeedDocument, settings: ReturnType<typeof useReaderSettings>) {
+export type ReaderSettings = ReturnType<typeof useReaderSettings>;
+
+/**
+ * requestAnimationFrame-driven playback over a pre-computed {@link Timeline}.
+ *
+ * The timeline is the single source of truth (shared with the exporter), so pauses
+ * and the 2s end-hold are just longer holds in the schedule — not timer hacks.
+ * rAF with a wall-clock accumulator is self-correcting (no setInterval drift).
+ */
+export function useReaderControls(document: SpeedDocument, settings: ReaderSettings) {
   const [status, setStatus] = React.useState<"paused" | "playing">("paused");
-  const [index, setIndex] = React.useState(0);
+  const [index, setIndexState] = React.useState(0);
 
-  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const pauseSettings = React.useMemo<PauseSettings>(
+    () => ({
+      stopMs: settings.stopMs.value ?? DEFAULT_PAUSE_SETTINGS.stopMs,
+      endHoldMs: settings.endHoldMs.value ?? DEFAULT_PAUSE_SETTINGS.endHoldMs,
+    }),
+    [settings.stopMs.value, settings.endHoldMs.value]
+  );
 
-  React.useEffect(() => {
-    console.log("bindWpm.value", settings.wpm.value);
-  }, [settings.wpm.value]);
+  const timeline = React.useMemo(
+    () => buildTimeline(document.tokens, settings.wpm.value ?? 0, pauseSettings),
+    [document.tokens, settings.wpm.value, pauseSettings]
+  );
+
+  const timelineRef = React.useRef<Timeline>(timeline);
+  const indexRef = React.useRef(0);
+  const elapsedRef = React.useRef(0);
+  const rafRef = React.useRef<number | null>(null);
+  const lastTsRef = React.useRef<number | null>(null);
 
   const stop = React.useCallback(() => {
-    clearIntervalRef(intervalRef);
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    lastTsRef.current = null;
     setStatus("paused");
   }, []);
 
-  const start = React.useCallback(() => {
-    clearIntervalRef(intervalRef);
+  const tick = React.useCallback(
+    (ts: number) => {
+      const tl = timelineRef.current;
 
-    if (isUndefined(settings.wpm.value)) {
-      return;
+      if (lastTsRef.current == null) lastTsRef.current = ts;
+      const delta = ts - lastTsRef.current;
+      lastTsRef.current = ts;
+      elapsedRef.current += delta;
+
+      if (elapsedRef.current >= tl.totalMs) {
+        elapsedRef.current = tl.totalMs;
+        indexRef.current = Math.max(0, tl.count - 1);
+        setIndexState(indexRef.current);
+        stop();
+        return;
+      }
+
+      const next = indexForElapsed(tl, elapsedRef.current);
+      if (next !== indexRef.current) {
+        indexRef.current = next;
+        setIndexState(next);
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [stop]
+  );
+
+  const start = React.useCallback(() => {
+    const tl = timelineRef.current;
+    if (tl.count === 0) return;
+
+    // Replay from the start if parked on the final word.
+    if (indexRef.current >= tl.count - 1) {
+      indexRef.current = 0;
+      elapsedRef.current = 0;
+      setIndexState(0);
     }
 
-    intervalRef.current = setInterval(() => {
-      setIndex((index) => {
-        if (index >= document.tokens.length - 1) {
-          stop();
-          return index;
-        }
-
-        return index + 1;
-      });
-    }, 60000 / settings.wpm.value);
-
+    lastTsRef.current = null;
     setStatus("playing");
-  }, [document.tokens.length, settings.wpm.value, stop]);
-
-  React.useEffect(() => {
-    if (!hasInterval(intervalRef.current)) return;
-
-    start();
-
-    return stop;
-  }, [start, stop]);
+    rafRef.current = requestAnimationFrame(tick);
+  }, [tick]);
 
   const toggle = React.useCallback(() => {
-    if (hasInterval(intervalRef.current)) {
-      return stop();
+    if (rafRef.current != null) {
+      stop();
+    } else {
+      start();
     }
-
-    return start();
   }, [start, stop]);
 
-  return { index, setIndex, start, stop, toggle, status } as const;
+  /** Seek to a token (slider drag, step/skip buttons). */
+  const setIndex = React.useCallback((next: number) => {
+    const tl = timelineRef.current;
+    const clamped = Math.max(0, Math.min(Math.max(0, tl.count - 1), next));
+    indexRef.current = clamped;
+    elapsedRef.current = elapsedForIndex(tl, clamped);
+    setIndexState(clamped);
+  }, []);
+
+  // Keep the live timeline current; re-anchor elapsed to the current word's start so a
+  // mid-play WPM/pause change doesn't jump the reader to a different word.
+  React.useEffect(() => {
+    timelineRef.current = timeline;
+    const clamped = Math.max(0, Math.min(Math.max(0, timeline.count - 1), indexRef.current));
+    if (clamped !== indexRef.current) {
+      indexRef.current = clamped;
+      setIndexState(clamped);
+    }
+    elapsedRef.current = elapsedForIndex(timeline, clamped);
+  }, [timeline]);
+
+  // Cancel any in-flight frame on unmount.
+  React.useEffect(() => {
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  return {
+    index,
+    setIndex,
+    start,
+    stop,
+    toggle,
+    status,
+    timeline,
+    totalMs: timeline.totalMs,
+  } as const;
 }

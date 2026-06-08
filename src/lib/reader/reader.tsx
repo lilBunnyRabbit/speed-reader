@@ -3,8 +3,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { DEFAULT_PAUSE_SETTINGS } from "@/core/timeline";
 import { SpeedDocument } from "@/models/speed-document";
-import { wpmToTimeString } from "@/utils/time.util";
+import { msToTimeString } from "@/utils/time.util";
 import {
   PauseIcon,
   PlayIcon,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router";
+import { ExportPanel } from "./export-panel";
 import { GhostWordsComponent, TokenComponent } from "./token";
 import { useReaderControls, useReaderSettings } from "./use-reader-controls";
 
@@ -51,14 +53,44 @@ export const Reader: React.FC<ReaderProps> = ({ document }) => {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Settings</SheetTitle>
-              <SheetDescription>This are the reader settings.</SheetDescription>
+              <SheetDescription>Reader & pacing settings.</SheetDescription>
             </SheetHeader>
 
-            <ConfigInput className="[&_input]:!w-full" min={0} {...settings.ghostWords}>
-              Ghost Words
-            </ConfigInput>
+            <div className="flex flex-col gap-4 mt-4">
+              <ConfigInput className="[&_input]:!w-full" min={0} {...settings.ghostWords}>
+                Ghost Words
+              </ConfigInput>
+
+              <ConfigInput
+                className="[&_input]:!w-full"
+                tooltip="Hold (ms) after a word marked as a stop in the editor (Tokens tab)."
+                min={0}
+                max={5000}
+                step={100}
+                {...settings.stopMs}
+              >
+                Stop Pause (ms)
+              </ConfigInput>
+
+              <ConfigInput
+                className="[&_input]:!w-full"
+                tooltip="Hold (ms) on the last word so a looping video doesn't snap-repeat."
+                min={0}
+                max={10000}
+                step={250}
+                {...settings.endHoldMs}
+              >
+                End Hold (ms)
+              </ConfigInput>
+            </div>
           </SheetContent>
         </Sheet>
+        <ExportPanel
+          doc={document}
+          wpm={settings.wpm.value ?? 300}
+          stopMs={settings.stopMs.value ?? DEFAULT_PAUSE_SETTINGS.stopMs}
+          endHoldMs={settings.endHoldMs.value ?? DEFAULT_PAUSE_SETTINGS.endHoldMs}
+        />
         <ThemeToggle className="justify-self-end" />
       </div>
 
@@ -142,7 +174,7 @@ export const Reader: React.FC<ReaderProps> = ({ document }) => {
           onValueChange={(v) => controls.setIndex(v[0])}
         />
         <div className="flex justify-between mt-2">
-          <div className="text-sm font-mono">{wpmToTimeString(settings.wpm.value ?? 0, document.tokens.length)}</div>
+          <div className="text-sm font-mono">{msToTimeString(controls.totalMs)}</div>
 
           <div className="text-sm font-mono whitespace-nowrap">
             {controls.index + 1} / {document.tokens.length}

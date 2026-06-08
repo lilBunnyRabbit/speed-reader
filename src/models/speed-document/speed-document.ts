@@ -39,6 +39,10 @@ export class SpeedDocumentBuilder {
     };
   }
 
+  static fromTokens(title: string, tokens: Token[]): SpeedDocument {
+    return { __version: "0.0.0", title, tokens };
+  }
+
   static rebuild(document: SpeedDocument): RawSpeedDocument {
     let output: string = "";
     for (const token of document.tokens) {

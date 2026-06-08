@@ -22,5 +22,21 @@ export default tseslint.config(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
+  },
+  {
+    // src/core must stay framework-agnostic so it ports to the SvelteKit rewrite verbatim.
+    files: ["src/core/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            { name: "react", message: "src/core must stay framework-agnostic — no React imports." },
+            { name: "react-dom", message: "src/core must stay framework-agnostic — no React imports." },
+          ],
+          patterns: ["react", "react/*", "react-dom", "react-dom/*"],
+        },
+      ],
+    },
   }
 );

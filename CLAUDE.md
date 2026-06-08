@@ -48,6 +48,8 @@ When having design/architecture discussions:
 - `2026-02-14_reader-engine.md` - Word display, animation tech, timing, pre-computation, high WPM scaling
 - `2026-02-14_editor-ux.md` - Editor interaction patterns, paint/brush mode, properties panel, timeline, phasing
 - `2026-02-15_tech-stack-hosting.md` - Full tech stack decisions, hosting, database, monetization model
+- `2026-04-17_backend-language-reconsideration.md` - Revisited JS-vs-Go backend; deferred split until a workload justifies it
+- `2026-06-08_video-export-pauses-categories.md` - YouTube Shorts pipeline: WebCodecs/MP4 video export, pause-aware Timeline, 2s loop-safe end-hold, quote library/categories; build in React under framework-agnostic `src/core/`
 
 ## Architecture Decision Records (ADR)
 

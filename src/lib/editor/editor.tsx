@@ -17,7 +17,7 @@ export interface EditorProps {
 
 export const Editor: React.FC<EditorProps> = () => {
   const { setDocument } = useGlobalReader();
-  const { ref, rawDocument, settings, setContent, history, editType } = useEditor();
+  const { ref, rawDocument, settings, setContent, history, editType, documentTokens } = useEditor();
   const navigate = useNavigate();
 
   useAutoResize(ref);
@@ -44,7 +44,7 @@ export const Editor: React.FC<EditorProps> = () => {
               className="mr-8"
               size="sm"
               onClick={() => {
-                const document = SpeedDocumentBuilder.build(rawDocument);
+                const document = SpeedDocumentBuilder.fromTokens(rawDocument.title, documentTokens);
                 setDocument(document);
                 navigate("/reader");
               }}
@@ -98,7 +98,7 @@ export const Editor: React.FC<EditorProps> = () => {
           />
         </div>
 
-        {editType === "tokens" && <TokenPreview value={rawDocument.raw} />}
+        {editType === "tokens" && <TokenPreview />}
       </div>
     </>
   );

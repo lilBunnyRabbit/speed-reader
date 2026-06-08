@@ -22,3 +22,11 @@ export function wpmToTimeString(wpm: number, words: number) {
   const { hours, minutes, seconds } = wpmToTime(wpm, words);
   return [hours && `${hours}h`, minutes && `${minutes}min`, seconds && `${seconds}s`].filter(Boolean).join(" ");
 }
+
+/** Format an absolute millisecond duration (e.g. a timeline total, including pauses). */
+export function msToTimeString(ms: number) {
+  const { hours, minutes, seconds } = secondsToTime(Math.round(ms / 1000));
+  return (
+    [hours && `${hours}h`, minutes && `${minutes}min`, seconds && `${seconds}s`].filter(Boolean).join(" ") || "0s"
+  );
+}
