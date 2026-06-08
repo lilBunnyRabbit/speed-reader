@@ -2,6 +2,7 @@ import { ConfigInput } from "@/components/config-input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { exportQuoteVideo, ExportResult } from "@/core/export/encode-video";
+import { deletePreset, loadPresets, savePreset, VideoPreset } from "@/core/presets";
 import { DEFAULT_FRAME_STYLE } from "@/core/render/render-frame";
 import { buildTimeline } from "@/core/timeline";
 import { SpeedDocument } from "@/models/speed-document";
@@ -87,6 +88,12 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ doc, wpm, stopMs, endH
   const [done, setDone] = React.useState<ExportResult | null>(null);
   const abortRef = React.useRef<AbortController | null>(null);
 
+  const [presets, setPresets] = React.useState<VideoPreset[]>([]);
+  const [selectedPresetId, setSelectedPresetId] = React.useState("");
+  const [presetName, setPresetName] = React.useState("");
+
+  React.useEffect(() => setPresets(loadPresets()), []);
+
   const words = React.useMemo(() => doc.tokens.map((token) => token.v), [doc.tokens]);
   const timeline = React.useMemo(
     () => buildTimeline(doc.tokens, exportWpm > 0 ? exportWpm : 1, { stopMs, endHoldMs }),
@@ -158,6 +165,54 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ doc, wpm, stopMs, endH
 
   const onCancel = React.useCallback(() => abortRef.current?.abort(), []);
 
+  const applyPreset = React.useCallback(
+    (id: string) => {
+      setSelectedPresetId(id);
+      const preset = presets.find((p) => p.id === id);
+      if (!preset) return;
+      const s = preset.settings;
+      setWidth(s.width);
+      setHeight(s.height);
+      setExportWpm(s.wpm);
+      setBg(s.background);
+      setText(s.text);
+      setWatermark(s.watermark);
+      setShowGhosts(s.showGhosts);
+      setEndCard(s.endCard);
+      setPresetName(preset.name);
+    },
+    [presets]
+  );
+
+  const onSavePreset = React.useCallback(() => {
+    const name = presetName.trim();
+    if (!name) return;
+    const existing = presets.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    const preset: VideoPreset = {
+      id: existing?.id ?? crypto.randomUUID(),
+      name,
+      settings: {
+        width: Math.round(width),
+        height: Math.round(height),
+        wpm: exportWpm,
+        background: bg,
+        text,
+        watermark,
+        showGhosts,
+        endCard,
+      },
+      updatedAt: Date.now(),
+    };
+    setPresets(savePreset(preset));
+    setSelectedPresetId(preset.id);
+  }, [presetName, presets, width, height, exportWpm, bg, text, watermark, showGhosts, endCard]);
+
+  const onDeletePreset = React.useCallback(() => {
+    if (!selectedPresetId) return;
+    setPresets(deletePreset(selectedPresetId));
+    setSelectedPresetId("");
+  }, [selectedPresetId]);
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -172,6 +227,38 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ doc, wpm, stopMs, endH
         </SheetHeader>
 
         <div className="flex flex-col gap-4 mt-4">
+          <div className="flex flex-col gap-2 border-b border-foreground/20 pb-4">
+            <span className="text-sm font-medium">Preset</span>
+            <div className="flex gap-2">
+              <select
+                className="flex-1 bg-transparent border border-foreground/30 rounded px-2 py-1"
+                value={selectedPresetId}
+                onChange={(e) => applyPreset(e.target.value)}
+              >
+                <option value="">Load a preset…</option>
+                {presets.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              <Button variant="outline" size="sm" disabled={!selectedPresetId} onClick={onDeletePreset}>
+                Delete
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <input
+                className="flex-1 bg-transparent border border-foreground/30 rounded px-2 py-1"
+                placeholder="Preset name"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+              />
+              <Button variant="secondary" size="sm" disabled={!presetName.trim()} onClick={onSavePreset}>
+                Save
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-2">
             <ConfigInput className="[&_input]:!w-full" min={120} max={4096} step={20} value={width} onChange={onNumber(setWidth)}>
               Width
